@@ -1,4 +1,4 @@
-workflows/deploy.ymlname: Build and Deploy to VPS (Docker Hub)
+name: Build and Deploy to VPS (Docker Hub)
 
 on:
   push:
