@@ -15,11 +15,21 @@ onMounted(() => {
   // Check current session
   supabase.auth.getSession().then(({ data: { session } }) => {
     user.value = session?.user ?? null;
+    // Clear tokens from URL fragment after successful login
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   });
 
   // Listen for changes
   supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null;
+    if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
+      // Clear tokens from URL fragment
+      if (window.location.hash) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
   });
 });
 </script>
