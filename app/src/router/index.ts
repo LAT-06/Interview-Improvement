@@ -7,6 +7,7 @@ import CalendarView from '../views/CalendarView.vue';
 import MockInterviewView from '../views/MockInterviewView.vue';
 import CommunityQuestionsView from '../views/CommunityQuestionsView.vue';
 import LoginView from '../views/LoginView.vue';
+import AuthCallbackView from '../views/AuthCallbackView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +16,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
+    },
+    {
+      path: '/auth/callback',
+      name: 'auth-callback',
+      component: AuthCallbackView,
     },
     {
       path: '/',
