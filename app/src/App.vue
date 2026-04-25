@@ -6,6 +6,12 @@ import { supabase } from './lib/supabaseClient';
 const router = useRouter();
 const user = ref<any>(null);
 
+// IMMEDIATELY clean the URL if it contains an access token
+// Supabase reads the hash on initialization, so we can clear it right after
+if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+  window.history.replaceState(null, '', window.location.pathname);
+}
+
 async function handleLogout() {
   await supabase.auth.signOut();
   router.push('/login');
