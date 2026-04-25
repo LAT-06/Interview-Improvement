@@ -1,4 +1,4 @@
-name: Build and Deploy to VPS (Docker Hub)
+name: Build and Deploy to VPS version 2 (Docker Hub)
 
 on:
   push:
