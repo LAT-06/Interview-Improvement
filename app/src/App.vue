@@ -6,12 +6,6 @@ import { supabase } from './lib/supabaseClient';
 const router = useRouter();
 const user = ref<any>(null);
 
-// IMMEDIATELY clean the URL if it contains an access token
-// Supabase reads the hash on initialization, so we can clear it right after
-if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
-  window.history.replaceState(null, '', window.location.pathname);
-}
-
 async function handleLogout() {
   await supabase.auth.signOut();
   router.push('/login');
@@ -21,20 +15,17 @@ onMounted(() => {
   // Check current session
   supabase.auth.getSession().then(({ data: { session } }) => {
     user.value = session?.user ?? null;
-    // Clear tokens from URL fragment after successful login
-    if (window.location.hash) {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
   });
 
   // Listen for changes
   supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null;
-    if (_event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
-      // Clear tokens from URL fragment
-      if (window.location.hash) {
+    
+    // If we just signed in, clear the URL tokens immediately after Supabase is done
+    if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+      setTimeout(() => {
         window.history.replaceState(null, '', window.location.pathname);
-      }
+      }, 0);
     }
   });
 });
