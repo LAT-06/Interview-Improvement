@@ -119,6 +119,17 @@ export const ApplicationRepository = {
     return data || [];
   },
 
+  async getPublicQuestions(): Promise<(InterviewQuestion & { applications: { company_name: string } })[]> {
+    const { data, error } = await supabase
+      .from('interview_questions')
+      .select('*, applications(company_name)')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
+  },
+
   async evaluateQuestion(id: string, question: string, user_answer: string): Promise<InterviewQuestion> {
     const { data: result, error: funcError } = await supabase.functions.invoke('evaluate-answer', {
       body: { question, user_answer },

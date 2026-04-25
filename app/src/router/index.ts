@@ -5,6 +5,7 @@ import ApplicationDetailView from '../views/ApplicationDetailView.vue';
 import QuestionsReviewView from '../views/QuestionsReviewView.vue';
 import CalendarView from '../views/CalendarView.vue';
 import MockInterviewView from '../views/MockInterviewView.vue';
+import CommunityQuestionsView from '../views/CommunityQuestionsView.vue';
 import LoginView from '../views/LoginView.vue';
 
 const router = createRouter({
@@ -37,6 +38,12 @@ const router = createRouter({
       path: '/mock-interview',
       name: 'mock-interview',
       component: MockInterviewView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/community',
+      name: 'community-questions',
+      component: CommunityQuestionsView,
       meta: { requiresAuth: true }
     },
     {

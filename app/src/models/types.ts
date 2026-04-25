@@ -19,5 +19,6 @@ export interface InterviewQuestion {
   user_answer?: string;
   llm_feedback?: string;
   ideal_answer?: string;
+  is_public?: boolean;
   created_at: string;
 }

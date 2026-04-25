@@ -191,6 +191,13 @@ onMounted(loadData);
                 class="font-medium text-slate-800 bg-transparent border-none focus:ring-0 p-0 w-full focus:outline-none"
                 placeholder="Question text..."
               />
+              <button 
+                @click="q.is_public = !q.is_public; ApplicationRepository.updateQuestion(q.id, { is_public: q.is_public })"
+                :class="['text-[10px] uppercase tracking-widest font-bold transition-colors px-2 py-1 rounded-sm ml-4 whitespace-nowrap', 
+                         q.is_public ? 'bg-indigo-50 text-indigo-600' : 'text-slate-300 hover:text-slate-500 border border-transparent hover:border-slate-100']"
+              >
+                {{ q.is_public ? 'Shared' : 'Share' }}
+              </button>
             </div>
             
             <div v-if="!q.llm_feedback" class="space-y-4">

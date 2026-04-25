@@ -42,6 +42,9 @@ onMounted(() => {
             <router-link to="/mock-interview" class="text-sm text-slate-400 hover:text-slate-900 transition-colors mt-1">
               Mock Interview
             </router-link>
+            <router-link to="/community" class="text-sm text-slate-400 hover:text-slate-900 transition-colors mt-1">
+              Community
+            </router-link>
           </nav>
         </div>
 

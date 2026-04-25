@@ -55,7 +55,8 @@ serve(async (req) => {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Question: ${question}\nAnswer: ${user_answer || "N/A"}` }
         ],
-        temperature: 0.7
+        temperature: 0.7,
+        max_tokens: 500
       }),
     })
 
