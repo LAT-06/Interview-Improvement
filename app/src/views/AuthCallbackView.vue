@@ -6,16 +6,16 @@ import { supabase } from '../lib/supabaseClient';
 const router = useRouter();
 
 onMounted(async () => {
-  // Supabase SDK sẽ tự động kiểm tra URL, thấy mã 'code', 
-  // và thực hiện lệnh POST để đổi lấy Access Token.
+  // Supabase SDK will automatically check the URL, detect the 'code',
+  // and perform a POST request to exchange it for an Access Token.
   const { error } = await supabase.auth.getSession();
   
   if (error) {
     console.error('Error exchanging code for session:', error.message);
     router.push('/login');
   } else {
-    // Đăng nhập thành công, chuyển về trang chủ. 
-    // URL bây giờ sẽ hoàn toàn sạch sẽ.
+    // Login successful, redirect to home page.
+    // The URL will now be completely clean.
     router.push('/');
   }
 });
