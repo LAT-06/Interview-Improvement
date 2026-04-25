@@ -15,17 +15,25 @@ onMounted(() => {
   // Check current session
   supabase.auth.getSession().then(({ data: { session } }) => {
     user.value = session?.user ?? null;
+    
+    // Nếu có hash ngay lúc khởi tạo, xóa nó đi
+    if (window.location.hash.includes('access_token')) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   });
 
   // Listen for changes
   supabase.auth.onAuthStateChange((_event, session) => {
     user.value = session?.user ?? null;
     
-    // If we just signed in, clear the URL tokens immediately after Supabase is done
-    if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+    // Xóa hash ở bất kỳ sự kiện nào liên quan đến đăng nhập
+    if (window.location.hash.includes('access_token')) {
+      // Đợi một chút để Supabase kịp đọc token vào localStorage
       setTimeout(() => {
-        window.history.replaceState(null, '', window.location.pathname);
-      }, 0);
+        if (window.location.hash.includes('access_token')) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      }, 100);
     }
   });
 });
