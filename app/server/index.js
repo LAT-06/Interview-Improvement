@@ -156,39 +156,70 @@ app.get('/api/auth/me', async (req, res) => {
 // --- DATA ROUTES ---
 
 app.get('/api/applications', authenticateUser, async (req, res) => {
-  const { data, error } = await req.supabase.from('applications').select('*').order('created_at', { ascending: false });
-  if (error) return res.status(500).json({ error: 'Failed to load applications' });
-  res.json(data);
+  try {
+    const { data, error } = await req.supabase.from('applications').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Detailed GET /api/applications error:', err);
+    res.status(500).json({ error: 'Failed to load applications' });
+  }
 });
 
 app.post('/api/applications', authenticateUser, async (req, res) => {
-  const { data, error } = await req.supabase.from('applications').insert({ ...req.body, user_id: req.user.id }).select().single();
-  if (error) return res.status(500).json({ error: 'Failed to create application' });
-  res.json(data);
+  try {
+    const { data, error } = await req.supabase.from('applications').insert({ ...req.body, user_id: req.user.id }).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Detailed POST /api/applications error:', err);
+    res.status(500).json({ error: 'Failed to create application' });
+  }
 });
 
 app.get('/api/applications/:id', authenticateUser, async (req, res) => {
-  const { data, error } = await req.supabase.from('applications').select('*, interview_questions(*)').eq('id', req.params.id).single();
-  if (error) return res.status(500).json({ error: 'Application not found' });
-  res.json(data);
+  try {
+    const { data, error } = await req.supabase.from('applications').select('*, interview_questions(*)').eq('id', req.params.id).single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Detailed GET /api/applications/:id error:', err);
+    res.status(500).json({ error: 'Application not found' });
+  }
 });
 
 app.patch('/api/applications/:id', authenticateUser, async (req, res) => {
-  const { data, error } = await req.supabase.from('applications').update(req.body).eq('id', req.params.id).select().single();
-  if (error) return res.status(500).json({ error: 'Update failed' });
-  res.json(data);
+  try {
+    const { data, error } = await req.supabase.from('applications').update(req.body).eq('id', req.params.id).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Detailed PATCH /api/applications/:id error:', err);
+    res.status(500).json({ error: 'Update failed' });
+  }
 });
 
 app.delete('/api/applications/:id', authenticateUser, async (req, res) => {
-  const { error } = await req.supabase.from('applications').delete().eq('id', req.params.id);
-  if (error) return res.status(500).json({ error: 'Delete failed' });
-  res.json({ success: true });
+  try {
+    const { error } = await req.supabase.from('applications').delete().eq('id', req.params.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Detailed DELETE /api/applications/:id error:', err);
+    res.status(500).json({ error: 'Delete failed' });
+  }
 });
 
 app.get('/api/questions', authenticateUser, async (req, res) => {
-  const { data, error } = await req.supabase.from('interview_questions').select('*, applications!inner(company_name, user_id)').order('created_at', { ascending: false });
-  if (error) return res.status(500).json({ error: 'Failed to load questions' });
-  res.json(data);
+  try {
+    // Sử dụng left join (!) thay vì inner join để tránh lỗi nếu không tìm thấy application
+    const { data, error } = await req.supabase.from('interview_questions').select('*, applications(company_name, user_id)').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Detailed GET /api/questions error:', err);
+    res.status(500).json({ error: 'Failed to load questions' });
+  }
 });
 
 app.get('/api/questions/public', async (req, res) => {
