@@ -7,7 +7,6 @@ import CalendarView from '../views/CalendarView.vue';
 import MockInterviewView from '../views/MockInterviewView.vue';
 import CommunityQuestionsView from '../views/CommunityQuestionsView.vue';
 import LoginView from '../views/LoginView.vue';
-import AuthCallbackView from '../views/AuthCallbackView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,11 +15,6 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
-    },
-    {
-      path: '/auth/callback',
-      name: 'auth-callback',
-      component: AuthCallbackView,
     },
     {
       path: '/',
@@ -62,13 +56,23 @@ const router = createRouter({
   ],
 });
 
+import api from '../lib/apiClient';
+
+// ... (routes definition)
+
 // Navigation Guard
 router.beforeEach(async (to, from, next) => {
-  const { data: { session } } = await supabase.auth.getSession();
+  let user = null;
+  try {
+    const { data } = await api.get('/auth/me');
+    user = data.user;
+  } catch (e) {
+    user = null;
+  }
   
-  if (to.meta.requiresAuth && !session) {
+  if (to.meta.requiresAuth && !user) {
     next('/login');
-  } else if (to.name === 'login' && session) {
+  } else if (to.name === 'login' && user) {
     next('/');
   } else {
     next();

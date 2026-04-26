@@ -73,61 +73,63 @@ onMounted(loadApplications);
       </button>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-      <div class="bg-slate-50 p-6 rounded-lg border border-slate-100">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
         <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-1">Total</p>
-        <p class="text-2xl font-light text-slate-800">{{ stats.total }}</p>
+        <p class="text-3xl font-light text-slate-800">{{ stats.total }}</p>
       </div>
-      <div class="bg-slate-50 p-6 rounded-lg border border-slate-100">
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
         <p class="text-[10px] uppercase tracking-[0.2em] text-indigo-500 font-bold mb-1">In Progress</p>
-        <p class="text-2xl font-light text-indigo-600">{{ stats.inProgress }}</p>
+        <p class="text-3xl font-light text-indigo-600">{{ stats.inProgress }}</p>
       </div>
-      <div class="bg-slate-50 p-6 rounded-lg border border-slate-100">
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
         <p class="text-[10px] uppercase tracking-[0.2em] text-red-400 font-bold mb-1">Rejected</p>
-        <p class="text-2xl font-light text-red-500">{{ stats.rejected }}</p>
+        <p class="text-3xl font-light text-red-500">{{ stats.rejected }}</p>
       </div>
-      <div class="bg-slate-50 p-6 rounded-lg border border-slate-100">
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
         <p class="text-[10px] uppercase tracking-[0.2em] text-green-500 font-bold mb-1">Offers</p>
-        <p class="text-2xl font-light text-green-600">{{ stats.offers }}</p>
+        <p class="text-3xl font-light text-green-600">{{ stats.offers }}</p>
       </div>
     </div>
 
     <div v-if="isLoading" class="text-slate-400 font-light">Loading...</div>
     
-    <div v-else-if="applications.length === 0" class="text-center py-20 border border-dashed border-slate-200 rounded-lg">
-      <p class="text-slate-400">No applications yet. Start by adding one.</p>
+    <div v-else-if="applications.length === 0" class="text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-white shadow-sm">
+      <p class="text-slate-400 font-light">No applications yet. Start by adding one.</p>
     </div>
 
-    <div v-else class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="border-b border-slate-100 text-slate-400 text-xs uppercase tracking-widest font-medium">
-            <th class="py-4 px-2">Company</th>
-            <th class="py-4 px-2">Position</th>
-            <th class="py-4 px-2 text-center">Status</th>
-            <th class="py-4 px-2 text-right">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr 
-            v-for="app in applications" 
-            :key="app.id"
-            class="group hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50"
-            @click="$router.push(`/application/${app.id}`)"
-          >
-            <td class="py-5 px-2 font-medium">{{ app.company_name }}</td>
-            <td class="py-5 px-2 text-slate-500">{{ app.position }}</td>
-            <td class="py-5 px-2 text-center">
-              <span :class="['px-2.5 py-1 text-[10px] rounded-full font-semibold uppercase tracking-wider', getStatusColor(app.status)]">
-                {{ app.status.replace('_', ' ') }}
-              </span>
-            </td>
-            <td class="py-5 px-2 text-right text-slate-400 text-sm">
-              {{ new Date(app.created_at).toLocaleDateString() }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-else class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-50 text-slate-400 text-[10px] uppercase tracking-widest font-bold">
+              <th class="py-4 px-6">Company</th>
+              <th class="py-4 px-6">Position</th>
+              <th class="py-4 px-6 text-center">Status</th>
+              <th class="py-4 px-6 text-right">Date</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr 
+              v-for="app in applications" 
+              :key="app.id"
+              class="group hover:bg-slate-50/50 transition-colors cursor-pointer"
+              @click="$router.push(`/application/${app.id}`)"
+            >
+              <td class="py-5 px-6 font-medium text-slate-800">{{ app.company_name }}</td>
+              <td class="py-5 px-6 text-slate-500 text-sm">{{ app.position }}</td>
+              <td class="py-5 px-6 text-center">
+                <span :class="['px-2.5 py-1 text-[9px] rounded-full font-bold uppercase tracking-wider', getStatusColor(app.status)]">
+                  {{ app.status.replace('_', ' ') }}
+                </span>
+              </td>
+              <td class="py-5 px-6 text-right text-slate-400 text-xs font-mono">
+                {{ new Date(app.created_at).toLocaleDateString() }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Minimalist Add Modal -->

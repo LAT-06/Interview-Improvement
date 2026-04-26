@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
-import { supabase } from './lib/supabaseClient';
+import api from './lib/apiClient';
 
 const router = useRouter();
 const user = ref<any>(null);
 const isMobileMenuOpen = ref(false);
 
 async function handleLogout() {
-  await supabase.auth.signOut();
+  await api.post('/auth/logout');
+  user.value = null;
   router.push('/login');
 }
 
@@ -17,26 +18,23 @@ router.afterEach(() => {
   isMobileMenuOpen.value = false;
 });
 
-onMounted(() => {
-  // Check current session
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    user.value = session?.user ?? null;
-  });
-
-  // Listen for changes
-  supabase.auth.onAuthStateChange((_event, session) => {
-    user.value = session?.user ?? null;
-  });
+onMounted(async () => {
+  try {
+    const { data } = await api.get('/auth/me');
+    user.value = data.user;
+  } catch (error) {
+    user.value = null;
+  }
 });
 </script>
 
 <template>
-  <div class="min-h-screen bg-white text-slate-900 font-sans antialiased">
+  <div class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
     <header v-if="user" class="border-b border-slate-100 py-6 px-4 md:px-8 relative bg-white z-50">
       <div class="max-w-5xl mx-auto flex justify-between items-center">
         <div class="flex gap-8 items-center">
           <router-link to="/" class="text-xl font-medium tracking-tight">
-            Job Tracker
+            Itea Jobs
           </router-link>
           
           <!-- Desktop Navigation -->
@@ -127,6 +125,6 @@ onMounted(() => {
 
 <style>
 body {
-  background-color: white;
+  background-color: #f8fafc; /* slate-50 */
 }
 </style>

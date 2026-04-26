@@ -82,32 +82,32 @@ onMounted(loadData);
 
     <div v-if="isLoading" class="text-slate-400 font-light text-center py-20">Loading calendar...</div>
     
-    <div v-else class="border border-slate-100 rounded-lg overflow-hidden">
-      <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-100">
-        <div v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" :key="day" class="py-3 text-center text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+    <div v-else class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="grid grid-cols-7 border-b border-slate-50">
+        <div v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" :key="day" class="py-4 text-center text-[10px] uppercase tracking-widest text-slate-400 font-bold">
           {{ day }}
         </div>
       </div>
       
-      <div class="grid grid-cols-7">
+      <div class="grid grid-cols-7 divide-x divide-slate-50">
         <div 
           v-for="(d, idx) in calendarDays" 
           :key="idx" 
-          class="min-h-[120px] p-2 border-r border-b border-slate-50 last:border-r-0"
-          :class="{'bg-slate-50/30': !d.day}"
+          class="min-h-[140px] p-2 border-b border-slate-50 last:border-r-0 transition-colors"
+          :class="{'bg-slate-50/20': !d.day, 'hover:bg-slate-50/50': d.day}"
         >
           <div v-if="d.day" class="flex flex-col h-full">
-            <span class="text-xs font-medium text-slate-400 mb-2">{{ d.day }}</span>
-            <div class="space-y-1">
+            <span class="text-xs font-medium text-slate-400 mb-2 px-1">{{ d.day }}</span>
+            <div class="space-y-1.5">
               <router-link 
                 v-for="app in d.apps" 
                 :key="app.id"
                 :to="`/application/${app.id}`"
-                class="block p-1.5 bg-white border border-slate-100 rounded text-[10px] leading-tight hover:border-slate-300 transition-colors shadow-sm"
+                class="block p-2 bg-indigo-50/50 border border-indigo-100/50 rounded-xl text-[10px] leading-tight hover:bg-indigo-100 transition-colors shadow-sm group"
               >
-                <div class="font-bold text-slate-700 truncate">{{ app.company_name }}</div>
-                <div class="text-slate-400 truncate">{{ app.position }}</div>
-                <div class="text-blue-400 mt-1 font-mono">
+                <div class="font-bold text-indigo-700 truncate group-hover:text-indigo-800">{{ app.company_name }}</div>
+                <div class="text-indigo-400/80 truncate text-[9px] uppercase tracking-wider font-semibold">{{ app.position }}</div>
+                <div class="text-indigo-500 mt-1 font-mono text-[9px] font-bold">
                   {{ new Date(app.interview_at!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
                 </div>
               </router-link>

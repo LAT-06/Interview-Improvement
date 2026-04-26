@@ -1,34 +1,36 @@
-# Build stage
+# Build stage for Frontend
 FROM node:20-alpine AS build-stage
-
 WORKDIR /app
-
-# Install dependencies
 COPY package*.json ./
 RUN npm install
-
-# Copy source code
 COPY . .
-
-# Pass build arguments to environment variables for Vite
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_PUBLISHABLE_KEY
-
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
-
-# Build the app
 RUN npm run build-only
 
-# Production stage
-FROM nginx:stable-alpine AS production-stage
+# Final stage
+FROM node:20-alpine
+WORKDIR /app
 
-# Copy the built files from the build stage
+# Install Nginx
+RUN apk add --no-cache nginx
+
+# Copy Backend and set permissions
+COPY server/package*.json ./server/
+RUN cd server && npm install
+COPY server/ ./server/
+RUN chown -R node:node /app/server
+
+# Copy Frontend build to Nginx directory
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/http.d/default.conf
 
-# Copy the custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Script to start both Nginx (as root) and Node.js (as node)
+RUN echo 'nginx && su node -c "cd /app/server && node index.js"' > /app/start.sh
+RUN chmod +x /app/start.sh
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "/app/start.sh"]

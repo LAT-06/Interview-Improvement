@@ -2,21 +2,9 @@
 import { supabase } from '../lib/supabaseClient';
 
 async function loginWithGoogle() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'consent',
-      },
-    },
-  });
-  
-  if (error) {
-    console.error('Login error:', error.message);
-    alert('Failed to login with Google');
-  }
+  // Thay vì dùng SDK, chúng ta redirect thẳng sang Backend 
+  // Backend sẽ lo liệu việc redirect sang Google và xử lý Callback
+  window.location.href = `${import.meta.env.VITE_API_URL || ''}/api/auth/google`;
 }
 </script>
 

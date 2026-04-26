@@ -29,9 +29,24 @@ const filteredQuestions = computed(() => {
   const query = searchQuery.value.toLowerCase();
   return questions.value.filter(q => 
     q.question.toLowerCase().includes(query) || 
-    q.applications.company_name.toLowerCase().includes(query)
+    q.applications?.company_name.toLowerCase().includes(query)
   );
 });
+
+async function togglePublic(question: QuestionWithCompany) {
+  try {
+    const updated = await ApplicationRepository.updateQuestion(question.id, {
+      is_public: !question.is_public
+    });
+    // Update local state
+    const index = questions.value.findIndex(q => q.id === question.id);
+    if (index !== -1) {
+      questions.value[index].is_public = !!updated.is_public;
+    }
+  } catch (error) {
+    console.error('Failed to toggle public status:', error);
+  }
+}
 
 onMounted(loadQuestions);
 </script>
@@ -63,9 +78,22 @@ onMounted(loadQuestions);
     <div v-else class="space-y-12">
       <div v-for="q in filteredQuestions" :key="q.id" class="group">
         <div class="flex justify-between items-start mb-2">
-          <span class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
-            {{ q.applications?.company_name || 'General' }}
-          </span>
+          <div class="flex items-center gap-3">
+            <span class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
+              {{ q.applications?.company_name || 'General' }}
+            </span>
+            <button 
+              @click="togglePublic(q)"
+              :class="[
+                'text-[9px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded transition-all border',
+                q.is_public 
+                  ? 'bg-slate-900 text-white border-slate-900' 
+                  : 'bg-white text-slate-400 border-slate-200 hover:border-slate-800 hover:text-slate-800'
+              ]"
+            >
+              {{ q.is_public ? 'Shared' : 'Private' }}
+            </button>
+          </div>
           <router-link 
             :to="`/application/${q.application_id}`"
             class="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-800 font-bold"
