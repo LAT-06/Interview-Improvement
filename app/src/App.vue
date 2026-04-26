@@ -75,7 +75,7 @@ onMounted(async () => {
           
           <button 
             @click="handleLogout"
-            class="hidden sm:block text-[10px] uppercase tracking-widest text-white hover:text-[#99CD82] transition-colors font-bold"
+            class="hidden sm:block text-[10px] uppercase tracking-widest text-white hover:opacity-80 transition-all font-bold"
           >
             Logout
           </button>

@@ -69,7 +69,7 @@ onMounted(loadApplications);
       <h1 class="text-3xl font-light tracking-tight text-slate-800">Applications</h1>
       <button 
         @click="showAddModal = true"
-        class="px-5 py-2.5 bg-[#4D5E3F] text-[#99CD82] hover:bg-[#688055] hover:text-white transition-all text-sm font-bold uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md"
+        class="px-5 py-2.5 bg-[#4D5E3F] text-white hover:bg-[#688055] transition-all text-sm font-bold uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md"
       >
         Add Application
       </button>
@@ -175,7 +175,7 @@ onMounted(loadApplications);
             </button>
             <button 
               type="submit"
-              class="px-8 py-3 bg-[#4D5E3F] text-[#99CD82] text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all shadow-lg"
+              class="px-8 py-3 bg-[#4D5E3F] text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] transition-all shadow-lg"
             >
               Create
             </button>

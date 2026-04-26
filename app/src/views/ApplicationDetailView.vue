@@ -53,7 +53,6 @@ async function saveInterviewDate() {
     const isoDate = tempInterviewDate.value ? new Date(tempInterviewDate.value).toISOString() : null;
     const updated = await ApplicationRepository.update(id, { interview_at: isoDate });
     application.value = updated;
-    // Show a brief success state if desired, but keeping it minimal
   } catch (error) {
     console.error('Failed to update interview date:', error);
     alert('Failed to save date. Please check your connection.');
@@ -86,7 +85,6 @@ async function evaluateAnswer(questionId: string, question: string, answer: stri
     isEvaluating.value = questionId;
     const updated = await ApplicationRepository.evaluateQuestion(questionId, question, answer);
     
-    // Tìm và cập nhật câu hỏi trong danh sách local
     const index = questions.value.findIndex(q => q.id === questionId);
     if (index !== -1) {
       questions.value[index] = {
@@ -116,7 +114,7 @@ onMounted(loadData);
 </script>
 
 <template>
-  <div v-if="isLoading" class="text-slate-400 font-light">Loading...</div>
+  <div v-if="isLoading" class="text-slate-400 font-light text-center py-20">Loading...</div>
   
   <div v-else-if="application">
     <div class="mb-12">
@@ -137,7 +135,7 @@ onMounted(loadData);
               <select 
                 :value="application.status"
                 @change="updateStatus(($event.target as HTMLSelectElement).value as ApplicationStatus)"
-                class="bg-slate-50 border border-slate-100 rounded-xl pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-100 transition-all appearance-none cursor-pointer w-full"
+                class="bg-[#F3F4F6] border border-slate-100 rounded-xl pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#84A26C] transition-all appearance-none cursor-pointer w-full"
               >
                 <option v-for="status in statusOptions" :key="status" :value="status">
                   {{ status.replace('_', ' ').toUpperCase() }}
@@ -155,12 +153,12 @@ onMounted(loadData);
               <input 
                 type="datetime-local" 
                 v-model="tempInterviewDate"
-                class="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-100 transition-all"
+                class="flex-1 bg-[#F3F4F6] border border-slate-100 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#84A26C] transition-all"
               />
               <button 
                 @click="saveInterviewDate"
                 :disabled="isSavingDate"
-                class="px-4 py-2 bg-[#4D5E3F] text-[#99CD82] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50"
+                class="px-4 py-2 bg-[#4D5E3F] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] transition-all disabled:opacity-50"
               >
                 {{ isSavingDate ? '...' : 'Save' }}
               </button>
@@ -205,7 +203,7 @@ onMounted(loadData);
               <button 
                 @click="q.is_public = !q.is_public; ApplicationRepository.updateQuestion(q.id, { is_public: q.is_public })"
                 :class="['text-[9px] uppercase tracking-widest font-bold transition-all px-2 py-1 rounded-md ml-4 whitespace-nowrap border', 
-                         q.is_public ? 'bg-[#4D5E3F] text-[#99CD82] border-[#4D5E3F]' : 'bg-white text-slate-300 border-slate-100 hover:border-[#4D5E3F] hover:text-[#4D5E3F]']"
+                         q.is_public ? 'bg-[#4D5E3F] text-white border-[#4D5E3F]' : 'bg-white text-slate-300 border-slate-100 hover:border-[#4D5E3F] hover:text-[#4D5E3F]']"
               >
                 {{ q.is_public ? 'Shared' : 'Private' }}
               </button>
@@ -221,7 +219,7 @@ onMounted(loadData);
               <button 
                 @click="evaluateAnswer(q.id, q.question, q.user_answer || '')"
                 :disabled="isEvaluating === q.id"
-                class="px-5 py-2.5 bg-[#4D5E3F] text-[#99CD82] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50"
+                class="px-5 py-2.5 bg-[#4D5E3F] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50"
               >
                 {{ isEvaluating === q.id ? 'Evaluating...' : 'Get Feedback' }}
               </button>
@@ -238,9 +236,9 @@ onMounted(loadData);
                   Edit Answer
                 </button>
               </div>
-              <div v-if="q.ideal_answer" class="bg-[#4D5E3F] p-5 rounded-2xl shadow-lg">
-                <p class="text-[10px] uppercase tracking-widest text-[#99CD82] mb-3 font-bold">Ideal Answer</p>
-                <p class="text-sm text-white leading-relaxed font-light">{{ q.ideal_answer }}</p>
+              <div v-if="q.ideal_answer" class="bg-[#688055] p-5 rounded-2xl shadow-lg border border-[#84A26C]/20">
+                <p class="text-[10px] uppercase tracking-widest text-white/80 mb-3 font-bold">Ideal Answer</p>
+                <p class="text-sm text-white leading-relaxed font-medium">{{ q.ideal_answer }}</p>
               </div>
             </div>
           </div>
@@ -266,7 +264,7 @@ onMounted(loadData);
               <button 
                 v-if="newQuestion.trim()"
                 @click="addQuestion"
-                class="px-8 py-3 bg-[#4D5E3F] text-[#99CD82] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all shadow-md"
+                class="px-8 py-3 bg-[#4D5E3F] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all shadow-md"
               >
                 Add
               </button>
