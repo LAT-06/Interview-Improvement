@@ -191,6 +191,15 @@ app.get('/api/questions/public', async (req, res) => {
   res.json(data);
 });
 
+app.post('/api/questions', authenticateUser, async (req, res) => {
+  const { data, error } = await req.supabase
+    .from('interview_questions')
+    .insert(req.body)
+    .select().single();
+  if (error) return res.status(500).json({ error: 'Failed to add question' });
+  res.json(data);
+});
+
 app.patch('/api/questions/:id', authenticateUser, async (req, res) => {
   const { data, error } = await req.supabase.from('interview_questions').update(req.body).eq('id', req.params.id).select().single();
   if (error) return res.status(500).json({ error: 'Update failed' });
