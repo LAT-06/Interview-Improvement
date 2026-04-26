@@ -192,9 +192,17 @@ app.get('/api/questions', authenticateUser, async (req, res) => {
 });
 
 app.get('/api/questions/public', async (req, res) => {
-  const { data, error } = await supabase.from('interview_questions').select('*, applications(company_name)').eq('is_public', true).order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('interview_questions')
+    .select('*, applications(company_name, position)')
+    .eq('is_public', true)
+    .order('created_at', { ascending: false });
+  
   if (error) return res.status(500).json({ error: 'Failed to load community questions' });
-  res.json(data);
+  
+  // Lọc bỏ những câu hỏi mà applications bị null (do RLS chặn)
+  const validData = data.filter(q => q.applications !== null);
+  res.json(validData);
 });
 
 app.post('/api/questions', authenticateUser, async (req, res) => {
