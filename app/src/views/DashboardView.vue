@@ -20,6 +20,7 @@ const stats = computed(() => {
 
 const filteredApplications = computed(() => {
   return applications.value.filter(app => {
+    // Chỉ coi là Archive nếu bị Từ chối hoặc bị Bơ
     const isArchiveStatus = ['rejected', 'ghosted'].includes(app.status);
     return showArchived.value ? isArchiveStatus : !isArchiveStatus;
   });
