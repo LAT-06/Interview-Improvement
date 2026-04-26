@@ -33,9 +33,9 @@ onMounted(async () => {
     <header v-if="user" class="bg-[#4D5E3F] py-4 px-4 md:px-8 relative z-50 shadow-lg">
       <div class="max-w-5xl mx-auto flex justify-between items-center">
         <div class="flex gap-10 items-center">
-          <router-link to="/" class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <div class="w-8 h-8 bg-[#99CD82] rounded-lg flex items-center justify-center text-[#4D5E3F]">J</div>
-            Job Tracker
+          <router-link to="/" class="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            <img src="/Flag.png" alt="Itea Logo" class="w-10 h-10 object-contain" />
+            Itea Jobs
           </router-link>
           
           <!-- Desktop Navigation -->
@@ -49,11 +49,11 @@ onMounted(async () => {
               ]" 
               :key="link.to"
               :to="link.to" 
-              class="text-sm font-medium px-4 py-2 rounded-xl transition-all"
+              class="text-sm font-medium px-4 py-2 rounded-xl transition-all text-white"
               :class="[
                 $route.path === link.to 
-                  ? 'bg-[#688055] text-white shadow-inner' 
-                  : 'text-[#99CD82] hover:bg-[#84A26C] hover:text-white'
+                  ? 'bg-[#688055] shadow-inner' 
+                  : 'hover:bg-[#84A26C]'
               ]"
             >
               {{ link.label }}
@@ -75,7 +75,7 @@ onMounted(async () => {
           
           <button 
             @click="handleLogout"
-            class="hidden sm:block text-[10px] uppercase tracking-widest text-[#99CD82] hover:text-white transition-colors font-bold"
+            class="hidden sm:block text-[10px] uppercase tracking-widest text-white hover:text-[#99CD82] transition-colors font-bold"
           >
             Logout
           </button>

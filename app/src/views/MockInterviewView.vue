@@ -95,21 +95,21 @@ function reset() {
       <h1 class="text-3xl font-light tracking-tight text-slate-800 mb-2">Mock Interview</h1>
       <p class="text-slate-400 mb-12 font-light">Set the stage for your practice session.</p>
 
-      <div class="space-y-8 bg-white p-8 border border-slate-100 rounded-lg shadow-sm">
+      <div class="space-y-8 bg-white p-8 border border-slate-100 rounded-3xl shadow-sm">
         <div>
-          <label class="block text-xs uppercase tracking-widest text-slate-400 mb-3 font-bold">Target Role</label>
+          <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-3 font-bold">Target Role</label>
           <input 
             v-model="role"
-            class="w-full border-b border-slate-200 focus:border-slate-800 outline-none py-2 transition-colors text-lg"
+            class="w-full bg-[#F3F4F6] border-none focus:ring-2 focus:ring-[#84A26C] rounded-xl py-3 px-4 transition-all outline-none"
             placeholder="e.g. Senior Frontend Engineer"
           />
         </div>
         
         <div>
-          <label class="block text-xs uppercase tracking-widest text-slate-400 mb-3 font-bold">Job Description / Requirements (Optional)</label>
+          <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-3 font-bold">Job Description / Requirements (Optional)</label>
           <textarea 
             v-model="jd"
-            class="w-full h-48 bg-slate-50 border-none rounded-lg p-4 text-sm focus:outline-none focus:ring-1 focus:ring-slate-200 resize-none"
+            class="w-full h-48 bg-[#F3F4F6] border-none rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#84A26C] resize-none transition-all"
             placeholder="Paste the job description here to make the interview more specific..."
           ></textarea>
         </div>
@@ -117,7 +117,7 @@ function reset() {
         <button 
           @click="startInterview"
           :disabled="!role"
-          class="w-full py-4 bg-slate-900 text-white text-sm font-bold uppercase tracking-widest rounded hover:bg-slate-800 transition-colors disabled:opacity-50"
+          class="w-full py-4 bg-[#4D5E3F] text-[#99CD82] text-sm font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50 shadow-lg"
         >
           Start Mock Interview
         </button>
@@ -128,10 +128,10 @@ function reset() {
     <div v-else class="flex flex-col h-[75vh]">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400">Mock Interview</h2>
+          <h2 class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Mock Interview</h2>
           <p class="text-lg font-medium text-slate-800">{{ role }}</p>
         </div>
-        <button @click="reset" class="text-xs uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors">
+        <button @click="reset" class="text-xs uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors font-bold">
           End Session
         </button>
       </div>
@@ -147,10 +147,10 @@ function reset() {
         >
           <div 
             :class="[
-              'max-w-[85%] p-4 rounded-lg text-sm leading-relaxed',
+              'max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-sm',
               msg.role === 'user' 
-                ? 'bg-slate-900 text-white' 
-                : 'bg-slate-50 text-slate-700 border border-slate-100'
+                ? 'bg-[#4D5E3F] text-white' 
+                : 'bg-white text-slate-700 border border-slate-100'
             ]"
           >
             <p class="whitespace-pre-wrap">{{ msg.content }}</p>
@@ -158,11 +158,11 @@ function reset() {
         </div>
         
         <div v-if="isProcessing" class="flex justify-start">
-          <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+          <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
             <div class="flex gap-1">
-              <span class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></span>
-              <span class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-              <span class="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+              <span class="w-1.5 h-1.5 bg-[#84A26C] rounded-full animate-bounce"></span>
+              <span class="w-1.5 h-1.5 bg-[#84A26C] rounded-full animate-bounce [animation-delay:0.2s]"></span>
+              <span class="w-1.5 h-1.5 bg-[#84A26C] rounded-full animate-bounce [animation-delay:0.4s]"></span>
             </div>
           </div>
         </div>
@@ -172,16 +172,19 @@ function reset() {
         <textarea 
           v-model="userMessage"
           @keydown.enter.prevent="sendMessage"
-          class="w-full border border-slate-200 rounded-lg p-4 pr-24 text-sm focus:outline-none focus:border-slate-800 transition-colors resize-none shadow-sm"
+          class="w-full border border-slate-100 bg-white rounded-2xl p-4 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-[#84A26C] transition-all resize-none shadow-sm"
           placeholder="Type your answer here... (Enter to send)"
           rows="3"
         ></textarea>
         <button 
           @click="sendMessage"
           :disabled="!userMessage.trim() || isProcessing"
-          class="absolute right-3 bottom-3 px-4 py-2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded hover:bg-slate-800 transition-colors disabled:opacity-50"
+          class="absolute right-3 bottom-3 p-3 bg-[#4D5E3F] text-[#99CD82] rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50 shadow-md flex items-center justify-center"
         >
-          Send
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
         </button>
       </div>
     </div>

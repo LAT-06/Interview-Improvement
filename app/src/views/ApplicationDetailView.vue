@@ -160,7 +160,7 @@ onMounted(loadData);
               <button 
                 @click="saveInterviewDate"
                 :disabled="isSavingDate"
-                class="px-4 py-2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-colors disabled:opacity-50"
+                class="px-4 py-2 bg-[#4D5E3F] text-[#99CD82] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50"
               >
                 {{ isSavingDate ? '...' : 'Save' }}
               </button>
@@ -180,18 +180,18 @@ onMounted(loadData);
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Left Column: Notes -->
       <div class="md:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-fit">
-        <h2 class="text-xs uppercase tracking-widest text-slate-400 mb-6 font-semibold">Notes</h2>
+        <h2 class="text-[10px] uppercase tracking-widest text-slate-400 mb-6 font-bold">Notes</h2>
         <textarea 
           v-model="application.notes"
           @blur="ApplicationRepository.update(id, { notes: application.notes })"
-          class="w-full h-64 bg-slate-50 border-none rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-100 resize-none transition-all"
+          class="w-full h-64 bg-[#F3F4F6] border-none rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#84A26C] resize-none transition-all"
           placeholder="Add notes about the company..."
         ></textarea>
       </div>
 
       <!-- Right Column: Interview Questions -->
       <div class="md:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-        <h2 class="text-xs uppercase tracking-widest text-slate-400 mb-8 font-semibold">Interview Questions</h2>
+        <h2 class="text-[10px] uppercase tracking-widest text-slate-400 mb-8 font-bold">Interview Questions</h2>
         
         <div class="space-y-10 mb-10">
           <div v-for="q in questions" :key="q.id" class="relative group/q">
@@ -205,7 +205,7 @@ onMounted(loadData);
               <button 
                 @click="q.is_public = !q.is_public; ApplicationRepository.updateQuestion(q.id, { is_public: q.is_public })"
                 :class="['text-[9px] uppercase tracking-widest font-bold transition-all px-2 py-1 rounded-md ml-4 whitespace-nowrap border', 
-                         q.is_public ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-300 border-slate-100 hover:border-slate-800 hover:text-slate-800']"
+                         q.is_public ? 'bg-[#4D5E3F] text-[#99CD82] border-[#4D5E3F]' : 'bg-white text-slate-300 border-slate-100 hover:border-[#4D5E3F] hover:text-[#4D5E3F]']"
               >
                 {{ q.is_public ? 'Shared' : 'Private' }}
               </button>
@@ -214,33 +214,33 @@ onMounted(loadData);
             <div v-if="!q.llm_feedback" class="space-y-4">
               <textarea 
                 v-model="q.user_answer"
-                class="w-full bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-slate-100 resize-none transition-all"
+                class="w-full bg-[#F3F4F6] border-none rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#84A26C] resize-none transition-all"
                 placeholder="Write your answer here..."
                 rows="3"
               ></textarea>
               <button 
                 @click="evaluateAnswer(q.id, q.question, q.user_answer || '')"
                 :disabled="isEvaluating === q.id"
-                class="px-4 py-2 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50"
+                class="px-5 py-2.5 bg-[#4D5E3F] text-[#99CD82] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50"
               >
                 {{ isEvaluating === q.id ? 'Evaluating...' : 'Get Feedback' }}
               </button>
             </div>
 
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+              <div class="bg-[#F3F4F6] p-5 rounded-2xl border border-slate-100 shadow-inner">
                 <p class="text-[10px] uppercase tracking-widest text-slate-400 mb-3 font-bold">Feedback</p>
                 <p class="text-sm text-slate-700 leading-relaxed">{{ q.llm_feedback }}</p>
                 <button 
                   @click="q.llm_feedback = undefined; q.ideal_answer = undefined"
-                  class="mt-4 text-[9px] uppercase tracking-widest text-slate-400 hover:text-slate-800 font-bold underline decoration-slate-200 underline-offset-4"
+                  class="mt-4 text-[9px] uppercase tracking-widest text-[#4D5E3F] hover:text-[#84A26C] font-bold underline decoration-slate-200 underline-offset-4"
                 >
                   Edit Answer
                 </button>
               </div>
-              <div v-if="q.ideal_answer" class="bg-emerald-50 p-5 rounded-2xl border border-emerald-100">
-                <p class="text-[10px] uppercase tracking-widest text-emerald-600 mb-3 font-bold">Ideal Answer</p>
-                <p class="text-sm text-emerald-900 leading-relaxed">{{ q.ideal_answer }}</p>
+              <div v-if="q.ideal_answer" class="bg-[#4D5E3F] p-5 rounded-2xl shadow-lg">
+                <p class="text-[10px] uppercase tracking-widest text-[#99CD82] mb-3 font-bold">Ideal Answer</p>
+                <p class="text-sm text-white leading-relaxed font-light">{{ q.ideal_answer }}</p>
               </div>
             </div>
           </div>
@@ -252,7 +252,7 @@ onMounted(loadData);
             <input 
               v-model="newQuestion"
               @keyup.enter="addQuestion"
-              class="flex-1 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-100 transition-all"
+              class="flex-1 bg-[#F3F4F6] border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#84A26C] transition-all"
               placeholder="What were you asked?"
             />
             <transition
@@ -266,7 +266,7 @@ onMounted(loadData);
               <button 
                 v-if="newQuestion.trim()"
                 @click="addQuestion"
-                class="px-6 py-3 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-slate-800 transition-all"
+                class="px-8 py-3 bg-[#4D5E3F] text-[#99CD82] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all shadow-md"
               >
                 Add
               </button>
