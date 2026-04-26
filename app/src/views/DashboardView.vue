@@ -7,14 +7,22 @@ import { useRouter } from 'vue-router';
 const applications = ref<Application[]>([]);
 const isLoading = ref(true);
 const showAddModal = ref(false);
+const showArchived = ref(false);
 const router = useRouter();
 
 const stats = computed(() => {
   const total = applications.value.length;
-  const inProgress = applications.value.filter(app => app.status === 'in_progress').length;
+  const inProgress = applications.value.filter(app => ['applied', 'in_review', 'interview', 'in_progress'].includes(app.status)).length;
   const rejected = applications.value.filter(app => app.status === 'rejected').length;
   const offers = applications.value.filter(app => app.status === 'offered').length;
   return { total, inProgress, rejected, offers };
+});
+
+const filteredApplications = computed(() => {
+  return applications.value.filter(app => {
+    const isArchiveStatus = ['rejected', 'ghosted'].includes(app.status);
+    return showArchived.value ? isArchiveStatus : !isArchiveStatus;
+  });
 });
 
 const newApp = ref({
@@ -67,12 +75,31 @@ onMounted(loadApplications);
   <div>
     <div class="flex justify-between items-center mb-12">
       <h1 class="text-3xl font-light tracking-tight text-slate-800">Applications</h1>
-      <button 
-        @click="showAddModal = true"
-        class="px-5 py-2.5 bg-[#4D5E3F] text-white hover:bg-[#688055] transition-all text-sm font-bold uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md"
-      >
-        Add Application
-      </button>
+      
+      <div class="flex items-center gap-4">
+        <!-- Archive Toggle -->
+        <div class="flex bg-white p-1 rounded-xl shadow-sm border border-slate-100 mr-2">
+          <button 
+            @click="showArchived = false"
+            :class="['px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all', !showArchived ? 'bg-[#4D5E3F] text-white shadow-md' : 'text-slate-400 hover:text-slate-600']"
+          >
+            Active
+          </button>
+          <button 
+            @click="showArchived = true"
+            :class="['px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all', showArchived ? 'bg-[#4D5E3F] text-white shadow-md' : 'text-slate-400 hover:text-slate-600']"
+          >
+            Archived
+          </button>
+        </div>
+
+        <button 
+          @click="showAddModal = true"
+          class="px-5 py-2.5 bg-[#4D5E3F] text-white hover:bg-[#688055] transition-all text-sm font-bold uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md"
+        >
+          Add Application
+        </button>
+      </div>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
@@ -81,7 +108,7 @@ onMounted(loadApplications);
         <p class="text-3xl font-light text-slate-800">{{ stats.total }}</p>
       </div>
       <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
-        <p class="text-[10px] uppercase tracking-[0.2em] text-[#688055] font-bold mb-1">In Progress</p>
+        <p class="text-[10px] uppercase tracking-[0.2em] text-[#688055] font-bold mb-1">Processing</p>
         <p class="text-3xl font-light text-[#688055]">{{ stats.inProgress }}</p>
       </div>
       <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
@@ -96,8 +123,8 @@ onMounted(loadApplications);
 
     <div v-if="isLoading" class="text-slate-400 font-light text-center py-20">Loading applications...</div>
     
-    <div v-else-if="applications.length === 0" class="text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-white shadow-sm">
-      <p class="text-slate-400 font-light">No applications yet. Start by adding one.</p>
+    <div v-else-if="filteredApplications.length === 0" class="text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-white shadow-sm">
+      <p class="text-slate-400 font-light">No {{ showArchived ? 'archived' : 'active' }} applications found.</p>
     </div>
 
     <div v-else class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -113,7 +140,7 @@ onMounted(loadApplications);
           </thead>
           <tbody class="divide-y divide-slate-50">
             <tr 
-              v-for="app in applications" 
+              v-for="app in filteredApplications" 
               :key="app.id"
               class="group hover:bg-slate-50/50 transition-colors cursor-pointer"
               @click="router.push(`/application/${app.id}`)"
@@ -175,7 +202,7 @@ onMounted(loadApplications);
             </button>
             <button 
               type="submit"
-              class="px-8 py-3 bg-[#4D5E3F] text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] transition-all shadow-lg"
+              class="px-8 py-3 bg-[#4D5E3F] text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all shadow-lg"
             >
               Create
             </button>
