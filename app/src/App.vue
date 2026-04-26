@@ -29,46 +29,53 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
-    <header v-if="user" class="border-b border-slate-100 py-6 px-4 md:px-8 relative bg-white z-50">
+  <div class="min-h-screen bg-[#F3F4F6] text-slate-900 font-sans antialiased">
+    <header v-if="user" class="bg-[#4D5E3F] py-4 px-4 md:px-8 relative z-50 shadow-lg">
       <div class="max-w-5xl mx-auto flex justify-between items-center">
-        <div class="flex gap-8 items-center">
-          <router-link to="/" class="text-xl font-medium tracking-tight">
-            Itea Jobs
+        <div class="flex gap-10 items-center">
+          <router-link to="/" class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <div class="w-8 h-8 bg-[#99CD82] rounded-lg flex items-center justify-center text-[#4D5E3F]">J</div>
+            Job Tracker
           </router-link>
           
           <!-- Desktop Navigation -->
-          <nav class="hidden md:flex gap-6">
-            <router-link to="/questions" class="text-sm text-slate-400 hover:text-slate-900 transition-colors mt-1">
-              Question Bank
-            </router-link>
-            <router-link to="/calendar" class="text-sm text-slate-400 hover:text-slate-900 transition-colors mt-1">
-              Calendar
-            </router-link>
-            <router-link to="/mock-interview" class="text-sm text-slate-400 hover:text-slate-900 transition-colors mt-1">
-              Mock Interview
-            </router-link>
-            <router-link to="/community" class="text-sm text-slate-400 hover:text-slate-900 transition-colors mt-1">
-              Community
+          <nav class="hidden md:flex gap-1 items-center">
+            <router-link 
+              v-for="link in [
+                { to: '/questions', label: 'Question Bank' },
+                { to: '/calendar', label: 'Calendar' },
+                { to: '/mock-interview', label: 'Mock Interview' },
+                { to: '/community', label: 'Community' }
+              ]" 
+              :key="link.to"
+              :to="link.to" 
+              class="text-sm font-medium px-4 py-2 rounded-xl transition-all"
+              :class="[
+                $route.path === link.to 
+                  ? 'bg-[#688055] text-white shadow-inner' 
+                  : 'text-[#99CD82] hover:bg-[#84A26C] hover:text-white'
+              ]"
+            >
+              {{ link.label }}
             </router-link>
           </nav>
         </div>
 
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2 pr-4 border-r border-slate-100 hidden sm:flex">
+          <div class="flex items-center gap-3 px-3 py-1.5 bg-[#688055] rounded-2xl hidden sm:flex border border-[#84A26C]/30 shadow-sm">
             <img 
               v-if="user.user_metadata.avatar_url" 
               :src="user.user_metadata.avatar_url" 
-              class="w-8 h-8 rounded-full border border-slate-100"
+              class="w-7 h-7 rounded-full border border-[#99CD82]/50"
             />
-            <span class="text-xs font-medium text-slate-500">
+            <span class="text-xs font-semibold text-white">
               {{ user.user_metadata.full_name || user.email }}
             </span>
           </div>
           
           <button 
             @click="handleLogout"
-            class="hidden sm:block text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors font-bold"
+            class="hidden sm:block text-[10px] uppercase tracking-widest text-[#99CD82] hover:text-white transition-colors font-bold"
           >
             Logout
           </button>
@@ -76,7 +83,7 @@ onMounted(async () => {
           <!-- Mobile Menu Button -->
           <button 
             @click="isMobileMenuOpen = !isMobileMenuOpen"
-            class="md:hidden p-2 text-slate-500 hover:text-slate-900"
+            class="md:hidden p-2 text-[#99CD82] hover:text-white"
           >
             <svg v-if="!isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
@@ -97,21 +104,30 @@ onMounted(async () => {
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-2"
       >
-        <div v-if="isMobileMenuOpen" class="md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 shadow-xl p-4 space-y-4">
-          <router-link to="/questions" class="block text-slate-600 font-medium">Question Bank</router-link>
-          <router-link to="/calendar" class="block text-slate-600 font-medium">Calendar</router-link>
-          <router-link to="/mock-interview" class="block text-slate-600 font-medium">Mock Interview</router-link>
-          <router-link to="/community" class="block text-slate-600 font-medium">Community</router-link>
-          <div class="pt-4 border-t border-slate-50 flex items-center justify-between">
+        <div v-if="isMobileMenuOpen" class="md:hidden absolute top-full left-0 right-0 bg-[#4D5E3F] border-t border-[#688055] shadow-2xl p-4 space-y-2">
+          <router-link 
+            v-for="link in [
+              { to: '/questions', label: 'Question Bank' },
+              { to: '/calendar', label: 'Calendar' },
+              { to: '/mock-interview', label: 'Mock Interview' },
+              { to: '/community', label: 'Community' }
+            ]" 
+            :key="link.to"
+            :to="link.to" 
+            class="block px-4 py-3 rounded-xl text-[#99CD82] font-medium hover:bg-[#84A26C] hover:text-white transition-all"
+          >
+            {{ link.label }}
+          </router-link>
+          <div class="pt-4 mt-2 border-t border-[#688055] flex items-center justify-between">
             <div class="flex items-center gap-2">
               <img 
                 v-if="user.user_metadata.avatar_url" 
                 :src="user.user_metadata.avatar_url" 
                 class="w-8 h-8 rounded-full"
               />
-              <span class="text-sm font-medium text-slate-500">{{ user.user_metadata.full_name || user.email }}</span>
+              <span class="text-sm font-medium text-white">{{ user.user_metadata.full_name || user.email }}</span>
             </div>
-            <button @click="handleLogout" class="text-xs font-bold uppercase text-red-400">Logout</button>
+            <button @click="handleLogout" class="text-xs font-bold uppercase text-red-300">Logout</button>
           </div>
         </div>
       </transition>
@@ -125,6 +141,6 @@ onMounted(async () => {
 
 <style>
 body {
-  background-color: #f8fafc; /* slate-50 */
+  background-color: #F3F4F6;
 }
 </style>

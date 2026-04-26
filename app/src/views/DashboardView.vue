@@ -2,10 +2,12 @@
 import { ref, onMounted, computed } from 'vue';
 import { ApplicationRepository } from '../repositories/ApplicationRepository';
 import type { Application } from '../models/types';
+import { useRouter } from 'vue-router';
 
 const applications = ref<Application[]>([]);
 const isLoading = ref(true);
 const showAddModal = ref(false);
+const router = useRouter();
 
 const stats = computed(() => {
   const total = applications.value.length;
@@ -67,7 +69,7 @@ onMounted(loadApplications);
       <h1 class="text-3xl font-light tracking-tight text-slate-800">Applications</h1>
       <button 
         @click="showAddModal = true"
-        class="px-4 py-2 border border-slate-200 hover:border-slate-400 transition-colors text-sm font-medium rounded-sm"
+        class="px-5 py-2.5 bg-[#4D5E3F] text-[#99CD82] hover:bg-[#688055] hover:text-white transition-all text-sm font-bold uppercase tracking-widest rounded-xl shadow-sm hover:shadow-md"
       >
         Add Application
       </button>
@@ -79,8 +81,8 @@ onMounted(loadApplications);
         <p class="text-3xl font-light text-slate-800">{{ stats.total }}</p>
       </div>
       <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
-        <p class="text-[10px] uppercase tracking-[0.2em] text-indigo-500 font-bold mb-1">In Progress</p>
-        <p class="text-3xl font-light text-indigo-600">{{ stats.inProgress }}</p>
+        <p class="text-[10px] uppercase tracking-[0.2em] text-[#688055] font-bold mb-1">In Progress</p>
+        <p class="text-3xl font-light text-[#688055]">{{ stats.inProgress }}</p>
       </div>
       <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
         <p class="text-[10px] uppercase tracking-[0.2em] text-red-400 font-bold mb-1">Rejected</p>
@@ -92,7 +94,7 @@ onMounted(loadApplications);
       </div>
     </div>
 
-    <div v-if="isLoading" class="text-slate-400 font-light">Loading...</div>
+    <div v-if="isLoading" class="text-slate-400 font-light text-center py-20">Loading applications...</div>
     
     <div v-else-if="applications.length === 0" class="text-center py-20 border border-dashed border-slate-200 rounded-2xl bg-white shadow-sm">
       <p class="text-slate-400 font-light">No applications yet. Start by adding one.</p>
@@ -114,7 +116,7 @@ onMounted(loadApplications);
               v-for="app in applications" 
               :key="app.id"
               class="group hover:bg-slate-50/50 transition-colors cursor-pointer"
-              @click="$router.push(`/application/${app.id}`)"
+              @click="router.push(`/application/${app.id}`)"
             >
               <td class="py-5 px-6 font-medium text-slate-800">{{ app.company_name }}</td>
               <td class="py-5 px-6 text-slate-500 text-sm">{{ app.position }}</td>
@@ -132,50 +134,50 @@ onMounted(loadApplications);
       </div>
     </div>
 
-    <!-- Minimalist Add Modal -->
-    <div v-if="showAddModal" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white border border-slate-200 w-full max-w-md p-8 rounded-lg shadow-xl shadow-slate-100">
-        <h2 class="text-xl mb-6 font-medium">New Application</h2>
+    <!-- Modern Add Modal -->
+    <div v-if="showAddModal" class="fixed inset-0 bg-[#4D5E3F]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white border border-slate-100 w-full max-w-md p-8 rounded-3xl shadow-2xl">
+        <h2 class="text-2xl mb-8 font-light text-[#4D5E3F]">New Application</h2>
         <form @submit.prevent="addApplication" class="space-y-6">
           <div>
-            <label class="block text-xs uppercase tracking-widest text-slate-400 mb-2">Company</label>
+            <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-2 font-bold">Company Name</label>
             <input 
               v-model="newApp.company_name" 
               required
-              class="w-full border-b border-slate-200 focus:border-slate-800 outline-none py-2 transition-colors"
+              class="w-full bg-[#F3F4F6] border-none focus:ring-2 focus:ring-[#84A26C] rounded-xl py-3 px-4 transition-all outline-none"
               placeholder="e.g. Google"
             />
           </div>
           <div>
-            <label class="block text-xs uppercase tracking-widest text-slate-400 mb-2">Position</label>
+            <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-2 font-bold">Job Position</label>
             <input 
               v-model="newApp.position" 
               required
-              class="w-full border-b border-slate-200 focus:border-slate-800 outline-none py-2 transition-colors"
+              class="w-full bg-[#F3F4F6] border-none focus:ring-2 focus:ring-[#84A26C] rounded-xl py-3 px-4 transition-all outline-none"
               placeholder="e.g. Software Engineer"
             />
           </div>
           <div>
-            <label class="block text-xs uppercase tracking-widest text-slate-400 mb-2">URL</label>
+            <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-2 font-bold">Listing URL</label>
             <input 
               v-model="newApp.url" 
-              class="w-full border-b border-slate-200 focus:border-slate-800 outline-none py-2 transition-colors"
+              class="w-full bg-[#F3F4F6] border-none focus:ring-2 focus:ring-[#84A26C] rounded-xl py-3 px-4 transition-all outline-none"
               placeholder="https://..."
             />
           </div>
-          <div class="flex justify-end gap-4 pt-4">
+          <div class="flex justify-end gap-4 pt-6">
             <button 
               type="button" 
               @click="showAddModal = false"
-              class="text-sm text-slate-400 hover:text-slate-800 transition-colors"
+              class="px-6 py-3 text-sm text-slate-400 hover:text-slate-800 transition-colors font-medium"
             >
               Cancel
             </button>
             <button 
               type="submit"
-              class="px-6 py-2 bg-slate-900 text-white text-sm font-medium rounded-sm hover:bg-slate-800 transition-colors"
+              class="px-8 py-3 bg-[#4D5E3F] text-[#99CD82] text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all shadow-lg"
             >
-              Add
+              Create
             </button>
           </div>
         </form>
