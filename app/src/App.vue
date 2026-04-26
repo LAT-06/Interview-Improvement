@@ -6,16 +6,19 @@ import api from './lib/apiClient';
 const router = useRouter();
 const user = ref<any>(null);
 const isMobileMenuOpen = ref(false);
+const isProfileDropdownOpen = ref(false);
 
 async function handleLogout() {
   await api.post('/auth/logout');
   user.value = null;
+  isProfileDropdownOpen.value = false;
   router.push('/login');
 }
 
-// Close menu on page change
+// Close menus on page change
 router.afterEach(() => {
   isMobileMenuOpen.value = false;
+  isProfileDropdownOpen.value = false;
 });
 
 onMounted(async () => {
@@ -34,8 +37,8 @@ onMounted(async () => {
       <div class="max-w-5xl mx-auto flex justify-between items-center">
         <div class="flex gap-10 items-center">
           <router-link to="/" class="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-            <img src="/Flag.png" alt="Itea Logo" class="w-10 h-10 object-contain" />
-            Itea Jobs
+            <img src="/Flag.png" alt="ITea Logo" class="w-10 h-10 object-contain" />
+            ITea Jobs
           </router-link>
           
           <!-- Desktop Navigation -->
@@ -62,23 +65,47 @@ onMounted(async () => {
         </div>
 
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-3 px-3 py-1.5 bg-[#688055] rounded-2xl hidden sm:flex border border-[#84A26C]/30 shadow-sm">
-            <img 
-              v-if="user.user_metadata.avatar_url" 
-              :src="user.user_metadata.avatar_url" 
-              class="w-7 h-7 rounded-full border border-[#99CD82]/50"
-            />
-            <span class="text-xs font-semibold text-white">
-              {{ user.user_metadata.full_name || user.email }}
-            </span>
+          <!-- Profile Dropdown -->
+          <div class="relative hidden sm:block">
+            <button 
+              @click="isProfileDropdownOpen = !isProfileDropdownOpen"
+              class="flex items-center gap-3 px-3 py-1.5 bg-[#688055] rounded-2xl border border-[#84A26C]/30 shadow-sm hover:bg-[#84A26C] transition-all"
+            >
+              <img 
+                v-if="user.user_metadata.avatar_url" 
+                :src="user.user_metadata.avatar_url" 
+                class="w-7 h-7 rounded-full border border-[#99CD82]/50"
+              />
+              <span class="text-xs font-semibold text-white">
+                {{ user.user_metadata.full_name || user.email }}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-[#99CD82] transition-transform" :class="{'rotate-180': isProfileDropdownOpen}"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <transition
+              enter-active-class="transition duration-100 ease-out"
+              enter-from-class="opacity-0 scale-95 translate-y-1"
+              enter-to-class="opacity-100 scale-100 translate-y-0"
+              leave-active-class="transition duration-75 ease-in"
+              leave-from-class="opacity-100 scale-100 translate-y-0"
+              leave-to-class="opacity-0 scale-95 translate-y-1"
+            >
+              <div v-if="isProfileDropdownOpen" class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-[60]">
+                <div class="px-4 py-2 border-b border-slate-50 mb-1">
+                  <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Account</p>
+                  <p class="text-xs font-medium text-slate-700 truncate">{{ user.email }}</p>
+                </div>
+                <button 
+                  @click="handleLogout"
+                  class="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2 font-medium"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  Logout
+                </button>
+              </div>
+            </transition>
           </div>
-          
-          <button 
-            @click="handleLogout"
-            class="hidden sm:block text-[10px] uppercase tracking-widest text-white hover:opacity-80 transition-all font-bold"
-          >
-            Logout
-          </button>
 
           <!-- Mobile Menu Button -->
           <button 
