@@ -179,6 +179,12 @@ app.patch('/api/applications/:id', authenticateUser, async (req, res) => {
   res.json(data);
 });
 
+app.delete('/api/applications/:id', authenticateUser, async (req, res) => {
+  const { error } = await req.supabase.from('applications').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: 'Delete failed' });
+  res.json({ success: true });
+});
+
 app.get('/api/questions', authenticateUser, async (req, res) => {
   const { data, error } = await req.supabase.from('interview_questions').select('*, applications!inner(company_name, user_id)').order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: 'Failed to load questions' });
