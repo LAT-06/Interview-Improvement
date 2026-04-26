@@ -207,9 +207,35 @@ app.patch('/api/questions/:id', authenticateUser, async (req, res) => {
 });
 
 app.post('/api/ai/evaluate', authenticateUser, aiLimiter, async (req, res) => {
-  const { data, error } = await req.supabase.functions.invoke('evaluate-answer', { body: req.body });
-  if (error) return res.status(500).json({ error: 'AI Evaluation failed' });
-  res.json(data);
+  const { id, question, user_answer } = req.body;
+  
+  try {
+    // 1. Gọi AI Edge Function của Supabase
+    const { data: result, error: funcError } = await req.supabase.functions.invoke('evaluate-answer', {
+      body: { question, user_answer }
+    });
+
+    if (funcError) throw funcError;
+
+    // 2. Lưu kết quả vào Database
+    const { data: updatedQuestion, error: dbError } = await req.supabase
+      .from('interview_questions')
+      .update({
+        user_answer,
+        llm_feedback: result.feedback,
+        ideal_answer: result.ideal_answer
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (dbError) throw dbError;
+
+    res.json(updatedQuestion);
+  } catch (error) {
+    console.error('AI Evaluation Error:', error);
+    res.status(500).json({ error: 'AI Evaluation failed' });
+  }
 });
 
 app.post('/api/ai/mock-interview', authenticateUser, aiLimiter, async (req, res) => {

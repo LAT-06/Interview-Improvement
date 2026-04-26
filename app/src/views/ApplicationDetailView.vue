@@ -77,14 +77,26 @@ async function addQuestion() {
 }
 
 async function evaluateAnswer(questionId: string, question: string, answer: string) {
+  if (!answer.trim()) {
+    alert('Please enter an answer first.');
+    return;
+  }
+  
   try {
     isEvaluating.value = questionId;
     const updated = await ApplicationRepository.evaluateQuestion(questionId, question, answer);
+    
+    // Tìm và cập nhật câu hỏi trong danh sách local
     const index = questions.value.findIndex(q => q.id === questionId);
-    if (index !== -1) questions.value[index] = updated;
+    if (index !== -1) {
+      questions.value[index] = {
+        ...questions.value[index],
+        ...updated
+      };
+    }
   } catch (error: any) {
     console.error('Failed to evaluate answer:', error);
-    alert(`Failed to get feedback: ${error.message || 'Unknown error'}. Check your Supabase logs or API key.`);
+    alert('Failed to get feedback from AI. Please try again.');
   } finally {
     isEvaluating.value = null;
   }

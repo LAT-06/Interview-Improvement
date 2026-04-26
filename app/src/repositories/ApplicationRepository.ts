@@ -46,8 +46,8 @@ export const ApplicationRepository = {
     return data;
   },
 
-  async evaluateQuestion(question: string, user_answer: string): Promise<any> {
-    const { data } = await api.post('/ai/evaluate', { question, user_answer });
+  async evaluateQuestion(id: string, question: string, user_answer: string): Promise<InterviewQuestion> {
+    const { data } = await api.post('/ai/evaluate', { id, question, user_answer });
     return data;
   },
 
