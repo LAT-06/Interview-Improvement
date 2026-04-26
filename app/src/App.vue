@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 import api from './lib/apiClient';
 
@@ -7,12 +7,20 @@ const router = useRouter();
 const user = ref<any>(null);
 const isMobileMenuOpen = ref(false);
 const isProfileDropdownOpen = ref(false);
+const profileDropdownRef = ref<HTMLElement | null>(null);
 
 async function handleLogout() {
   await api.post('/auth/logout');
   user.value = null;
   isProfileDropdownOpen.value = false;
   router.push('/login');
+}
+
+// Close dropdown when clicking outside
+function handleClickOutside(event: MouseEvent) {
+  if (profileDropdownRef.value && !profileDropdownRef.value.contains(event.target as Node)) {
+    isProfileDropdownOpen.value = false;
+  }
 }
 
 // Close menus on page change
@@ -22,12 +30,17 @@ router.afterEach(() => {
 });
 
 onMounted(async () => {
+  window.addEventListener('click', handleClickOutside);
   try {
     const { data } = await api.get('/auth/me');
     user.value = data.user;
   } catch (error) {
     user.value = null;
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -66,7 +79,7 @@ onMounted(async () => {
 
         <div class="flex items-center gap-4">
           <!-- Profile Dropdown -->
-          <div class="relative hidden sm:block">
+          <div class="relative hidden sm:block" ref="profileDropdownRef">
             <button 
               @click="isProfileDropdownOpen = !isProfileDropdownOpen"
               class="flex items-center gap-3 px-3 py-1.5 bg-[#688055] rounded-2xl border border-[#84A26C]/30 shadow-sm hover:bg-[#84A26C] transition-all"
