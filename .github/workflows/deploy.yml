@@ -53,5 +53,9 @@ jobs:
             docker run -d \
               --name interview-frontend \
               -p 3000:80 \
+              -e SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }} \
+              -e SUPABASE_PUBLISHABLE_KEY=${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }} \
+              -e FRONTEND_URL=https://lat06.id.vn \
+              -e BACKEND_URL=https://lat06.id.vn \
               --restart always \
               ${{ secrets.DOCKERHUB_USERNAME }}/interview-frontend:latest

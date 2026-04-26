@@ -27,8 +27,9 @@ RUN chown -R node:node /app/server
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/http.d/default.conf
 
-# Script to start both Nginx (as root) and Node.js (as node)
-RUN echo 'nginx && su node -c "cd /app/server && node index.js"' > /app/start.sh
+# Script to start both Nginx and Node.js
+# -g "daemon on;" đảm bảo nginx chạy ngầm để nhường foreground cho Node.js hiện log
+RUN echo 'nginx -g "daemon on;" && cd /app/server && node index.js' > /app/start.sh
 RUN chmod +x /app/start.sh
 
 EXPOSE 80
