@@ -51,37 +51,58 @@ const aiLimiter = rateLimit({
 });
 
 const authenticateUser = async (req, res, next) => {
-  let accessToken = req.cookies['sb-access-token'];
-  const refreshToken = req.cookies['sb-refresh-token'];
+  try {
+    let accessToken = req.cookies['sb-access-token'];
+    const refreshToken = req.cookies['sb-refresh-token'];
 
-  if (!accessToken && !refreshToken) return res.status(401).json({ error: 'Unauthorized' });
-
-  let userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
-    global: { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} }
-  });
-
-  let { data: { user }, error } = await userClient.auth.getUser();
-
-  if ((error || !user) && refreshToken) {
-    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
-    if (!refreshError && refreshData.session) {
-      accessToken = refreshData.session.access_token;
-      res.cookie('sb-access-token', accessToken, {
-        httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax',
-        expires: new Date(Date.now() + refreshData.session.expires_in * 1000)
-      });
-      userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
-        global: { headers: { Authorization: `Bearer ${accessToken}` } }
-      });
-      const { data: { user: refreshedUser } } = await userClient.auth.getUser();
-      user = refreshedUser;
+    if (!accessToken && !refreshToken) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
-  }
 
-  if (!user) return res.status(401).json({ error: 'Session expired' });
-  req.user = user;
-  req.supabase = userClient;
-  next();
+    // Khởi tạo client với token để check RLS
+    const userClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+      global: { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} }
+    });
+
+    let { data: { user }, error } = await userClient.auth.getUser();
+
+    // Tự động refresh nếu token hết hạn
+    if ((error || !user) && refreshToken) {
+      console.log('Refreshing expired session...');
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+      
+      if (!refreshError && refreshData.session) {
+        accessToken = refreshData.session.access_token;
+        res.cookie('sb-access-token', accessToken, {
+          httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax',
+          expires: new Date(Date.now() + refreshData.session.expires_in * 1000)
+        });
+        
+        // Thử lại với client mới
+        const newUserClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY, {
+          global: { headers: { Authorization: `Bearer ${accessToken}` } }
+        });
+        const { data: { user: refreshedUser }, error: secondError } = await newUserClient.auth.getUser();
+        if (secondError) throw secondError;
+        
+        user = refreshedUser;
+        req.supabase = newUserClient;
+      } else {
+        throw refreshError || new Error('Failed to refresh session');
+      }
+    } else {
+      if (error) throw error;
+      req.supabase = userClient;
+    }
+
+    if (!user) return res.status(401).json({ error: 'Session expired' });
+    
+    req.user = user;
+    next();
+  } catch (err) {
+    console.error('CRITICAL Auth Middleware Error:', err);
+    res.status(500).json({ error: 'Internal security error' });
+  }
 };
 
 // --- AUTHENTICATION ---
@@ -157,7 +178,12 @@ app.get('/api/auth/me', async (req, res) => {
 
 app.get('/api/applications', authenticateUser, async (req, res) => {
   try {
-    const { data, error } = await req.supabase.from('applications').select('*').order('created_at', { ascending: false });
+    // Luôn luôn lọc theo user_id của chính người dùng đó
+    const { data, error } = await req.supabase
+      .from('applications')
+      .select('*')
+      .eq('user_id', req.user.id)
+      .order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
   } catch (err) {
@@ -166,20 +192,16 @@ app.get('/api/applications', authenticateUser, async (req, res) => {
   }
 });
 
-app.post('/api/applications', authenticateUser, async (req, res) => {
-  try {
-    const { data, error } = await req.supabase.from('applications').insert({ ...req.body, user_id: req.user.id }).select().single();
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    console.error('Detailed POST /api/applications error:', err);
-    res.status(500).json({ error: 'Failed to create application' });
-  }
-});
+// ... (post route)
 
 app.get('/api/applications/:id', authenticateUser, async (req, res) => {
   try {
-    const { data, error } = await req.supabase.from('applications').select('*, interview_questions(*)').eq('id', req.params.id).single();
+    const { data, error } = await req.supabase
+      .from('applications')
+      .select('*, interview_questions(*)')
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id)
+      .single();
     if (error) throw error;
     res.json(data);
   } catch (err) {
@@ -188,32 +210,15 @@ app.get('/api/applications/:id', authenticateUser, async (req, res) => {
   }
 });
 
-app.patch('/api/applications/:id', authenticateUser, async (req, res) => {
-  try {
-    const { data, error } = await req.supabase.from('applications').update(req.body).eq('id', req.params.id).select().single();
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    console.error('Detailed PATCH /api/applications/:id error:', err);
-    res.status(500).json({ error: 'Update failed' });
-  }
-});
-
-app.delete('/api/applications/:id', authenticateUser, async (req, res) => {
-  try {
-    const { error } = await req.supabase.from('applications').delete().eq('id', req.params.id);
-    if (error) throw error;
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Detailed DELETE /api/applications/:id error:', err);
-    res.status(500).json({ error: 'Delete failed' });
-  }
-});
+// ... (patch, delete routes)
 
 app.get('/api/questions', authenticateUser, async (req, res) => {
   try {
-    // Sử dụng left join (!) thay vì inner join để tránh lỗi nếu không tìm thấy application
-    const { data, error } = await req.supabase.from('interview_questions').select('*, applications(company_name, user_id)').order('created_at', { ascending: false });
+    const { data, error } = await req.supabase
+      .from('interview_questions')
+      .select('*, applications!inner(company_name, user_id)')
+      .eq('applications.user_id', req.user.id) // Chỉ lấy câu hỏi của chính mình
+      .order('created_at', { ascending: false });
     if (error) throw error;
     res.json(data);
   } catch (err) {
