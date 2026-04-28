@@ -251,9 +251,25 @@ app.post('/api/questions', authenticateUser, async (req, res) => {
 });
 
 app.patch('/api/questions/:id', authenticateUser, async (req, res) => {
-  const { data, error } = await req.supabase.from('interview_questions').update(req.body).eq('id', req.params.id).select().single();
-  if (error) return res.status(500).json({ error: 'Update failed' });
-  res.json(data);
+  try {
+    const { data, error } = await req.supabase.from('interview_questions').update(req.body).eq('id', req.params.id).select().single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Detailed PATCH /api/questions/:id error:', err);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
+app.delete('/api/questions/:id', authenticateUser, async (req, res) => {
+  try {
+    const { error } = await req.supabase.from('interview_questions').delete().eq('id', req.params.id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Detailed DELETE /api/questions/:id error:', err);
+    res.status(500).json({ error: 'Delete failed' });
+  }
 });
 
 app.post('/api/ai/evaluate', authenticateUser, aiLimiter, async (req, res) => {

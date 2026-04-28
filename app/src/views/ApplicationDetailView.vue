@@ -75,6 +75,16 @@ async function addQuestion() {
   }
 }
 
+async function removeQuestion(questionId: string) {
+  if (!confirm('Delete this question?')) return;
+  try {
+    await ApplicationRepository.deleteQuestion(questionId);
+    questions.value = questions.value.filter(q => q.id !== questionId);
+  } catch (error) {
+    console.error('Failed to delete question:', error);
+  }
+}
+
 async function evaluateAnswer(questionId: string, question: string, answer: string) {
   if (!answer.trim()) {
     alert('Please enter an answer first.');
@@ -200,13 +210,22 @@ onMounted(loadData);
                 class="font-medium text-slate-800 bg-transparent border-none focus:ring-0 p-0 w-full focus:outline-none text-lg"
                 placeholder="Question text..."
               />
-              <button 
-                @click="q.is_public = !q.is_public; ApplicationRepository.updateQuestion(q.id, { is_public: q.is_public })"
-                :class="['text-[9px] uppercase tracking-widest font-bold transition-all px-2 py-1 rounded-md ml-4 whitespace-nowrap border', 
-                         q.is_public ? 'bg-[#4D5E3F] text-white border-[#4D5E3F]' : 'bg-white text-slate-300 border-slate-100 hover:border-[#4D5E3F] hover:text-[#4D5E3F]']"
-              >
-                {{ q.is_public ? 'Shared' : 'Private' }}
-              </button>
+              <div class="flex items-center gap-2 ml-4">
+                <button 
+                  @click="q.is_public = !q.is_public; ApplicationRepository.updateQuestion(q.id, { is_public: q.is_public })"
+                  :class="['text-[9px] uppercase tracking-widest font-bold transition-all px-2 py-1 rounded-md whitespace-nowrap border', 
+                           q.is_public ? 'bg-[#4D5E3F] text-white border-[#4D5E3F]' : 'bg-white text-slate-300 border-slate-100 hover:border-[#4D5E3F] hover:text-[#4D5E3F]']"
+                >
+                  {{ q.is_public ? 'Shared' : 'Private' }}
+                </button>
+                <button 
+                  @click="removeQuestion(q.id)"
+                  class="p-1.5 text-slate-300 hover:text-red-400 transition-colors"
+                  title="Delete Question"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+              </div>
             </div>
             
             <div v-if="!q.llm_feedback" class="space-y-4">
