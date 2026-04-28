@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import { ApplicationRepository } from '../repositories/ApplicationRepository';
+import { marked } from 'marked';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -15,13 +16,18 @@ const userMessage = ref('');
 const isProcessing = ref(false);
 const chatContainer = ref<HTMLElement | null>(null);
 
+// Configure marked options
+marked.setOptions({
+  breaks: true,
+  gfm: true
+});
+
 async function startInterview() {
   if (!role.value.trim()) return;
   step.value = 'chat';
   isProcessing.value = true;
   
   try {
-    // Get past questions context
     const pastQuestions = await ApplicationRepository.getAllQuestions();
     const bankContext = pastQuestions.map(q => q.question).join('\n');
     
@@ -117,7 +123,7 @@ function reset() {
         <button 
           @click="startInterview"
           :disabled="!role"
-          class="w-full py-4 bg-[#4D5E3F] text-[#99CD82] text-sm font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50 shadow-lg"
+          class="w-full py-4 bg-[#4D5E3F] text-white text-sm font-bold uppercase tracking-widest rounded-xl hover:bg-[#688055] transition-all disabled:opacity-50 shadow-lg"
         >
           Start Mock Interview
         </button>
@@ -138,7 +144,7 @@ function reset() {
 
       <div 
         ref="chatContainer"
-        class="flex-1 overflow-y-auto space-y-6 pr-4 mb-6 scroll-smooth"
+        class="flex-1 overflow-y-auto space-y-6 pr-4 mb-6 scroll-smooth custom-scrollbar"
       >
         <div 
           v-for="(msg, idx) in messages" 
@@ -147,13 +153,13 @@ function reset() {
         >
           <div 
             :class="[
-              'max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-sm',
+              'max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed shadow-sm markdown-body',
               msg.role === 'user' 
-                ? 'bg-[#4D5E3F] text-white' 
+                ? 'bg-[#4D5E3F] text-white user-msg' 
                 : 'bg-white text-slate-700 border border-slate-100'
             ]"
           >
-            <p class="whitespace-pre-wrap">{{ msg.content }}</p>
+            <div class="prose prose-sm max-w-none" v-html="marked(msg.content)"></div>
           </div>
         </div>
         
@@ -179,7 +185,7 @@ function reset() {
         <button 
           @click="sendMessage"
           :disabled="!userMessage.trim() || isProcessing"
-          class="absolute right-3 bottom-3 p-3 bg-[#4D5E3F] text-[#99CD82] rounded-xl hover:bg-[#688055] hover:text-white transition-all disabled:opacity-50 shadow-md flex items-center justify-center"
+          class="absolute right-3 bottom-3 p-3 bg-[#4D5E3F] text-white rounded-xl hover:bg-[#688055] transition-all disabled:opacity-50 shadow-md flex items-center justify-center"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -190,3 +196,41 @@ function reset() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.markdown-body :deep(p) {
+  margin-bottom: 0.5rem;
+}
+.markdown-body :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.markdown-body :deep(strong) {
+  font-weight: 700;
+}
+.markdown-body :deep(em) {
+  font-style: italic;
+}
+.markdown-body :deep(ul), .markdown-body :deep(ol) {
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.markdown-body :deep(li) {
+  margin-bottom: 0.25rem;
+}
+
+/* Fix text color for user messages in markdown */
+.user-msg :deep(*) {
+  color: white !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+</style>
