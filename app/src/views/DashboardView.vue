@@ -47,11 +47,15 @@ async function loadApplications() {
 async function addApplication() {
   try {
     const created = await ApplicationRepository.create(newApp.value);
-    applications.value = [created, ...applications.value];
-    showAddModal.value = false;
-    newApp.value = { company_name: '', position: '', status: 'applied', url: '' };
-  } catch (error) {
+    if (created) {
+      applications.value = [created, ...applications.value];
+      showAddModal.value = false;
+      newApp.value = { company_name: '', position: '', status: 'applied', url: '' };
+    }
+  } catch (error: any) {
     console.error('Failed to add application:', error);
+    const msg = error.response?.data?.error || error.message || 'Unknown error';
+    alert(`Failed to create application: ${msg}`);
   }
 }
 

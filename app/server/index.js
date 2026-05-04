@@ -192,7 +192,20 @@ app.get('/api/applications', authenticateUser, async (req, res) => {
   }
 });
 
-// ... (post route)
+app.post('/api/applications', authenticateUser, async (req, res) => {
+  try {
+    const { data, error } = await req.supabase
+      .from('applications')
+      .insert({ ...req.body, user_id: req.user.id })
+      .select()
+      .single();
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error('Detailed POST /api/applications error:', err);
+    res.status(500).json({ error: 'Failed to create application' });
+  }
+});
 
 app.get('/api/applications/:id', authenticateUser, async (req, res) => {
   try {
